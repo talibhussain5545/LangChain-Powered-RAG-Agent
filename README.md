@@ -1,130 +1,183 @@
 # Langchain AI Assistant with Hybrid RAG and Memory
 
-This application can be configured (see config.py) to create your own specialized AI assistant.
+This project allows you to deploy your own custom AI assistant using a hybrid RAG architecture, memory, and a Streamlit-based web interface.
 
-- AI Python framework: Langchain
-- Web interface Python framework: Streamlit
-- Vector DB: Chroma
-- Hybrid RAG: bm25 keyword search and vector db semantic search (BM25Retriever + vector_db.as_retriever = EnsembleRetriever). Hybrid RAG improves greatly the efficiency of the RAG search.
-- Chat history (use of predefined chains: history_aware_retriever, stuff_documents_chain, retrieval_chain)
-- Streaming of the AI answer
-- Logs sent to Langsmith
-- AI Models: OpenAI GPT 4o, Google Gemini 1.5, Anthropic Claude 3, Ollama (Llama 3, etc.). Vector size: 3072.
-- Admin interface (scrape web pages, upload PDF files, embed in vector DB)
-- Files ingestion into the vector DB: JSON files (one JSON item / web page per chunk) and PDF files (one PDF page per chunk)
- 
-Frameworks and tools:
+---
 
-- Langchain: https://www.langchain.com (Python framework for AI applications)
-- Langsmith: https://smith.langchain.com (logs and debug for Langchain applications)
-- Streamlit: https://streamlit.io (Python framework for web interfaces for data / AI applications)
-- Chroma: https://www.trychroma.com (Vector DB)
-- OpenAI (GPT): https://platform.openai.com (LLM)
-- Anthropic (Claude): https://console.anthropic.com/dashboard (LLM)
-- Google VertexAI (Gemini): https://cloud.google.com/vertex-ai (LLM)
-- Ollama (Llama, etc.): https://ollama.com (LLM)
+## Key Features
 
-Installation:
+- **Framework**: Langchain (AI logic) + Streamlit (UI)
+- **Retrieval Augmented Generation (RAG)**: Combines BM25 keyword search and semantic vector search via `EnsembleRetriever`
+- **Vector Store**: ChromaDB
+- **LLM Support**: OpenAI GPT-4o, Google Gemini 1.5, Anthropic Claude 3, Ollama (LLaMA 3 and others)
+- **Chat Memory**: Built-in chat history using Langchain's predefined chains
+- **Streaming Output**: Real-time AI response updates
+- **Admin Interface**: Web scraping, PDF upload, and document ingestion into ChromaDB
+- **Document Support**:
 
-Requirements: Python 3.10
+  - JSON (one chunk per item/page)
+  - PDF (one chunk per page)
 
-Procedure to install the application on a Linux server:
+- **Logging**: Integrated with Langsmith
 
-```
-$ git clone https://github.com/dodeeric/langchain-ai-assistant-with-hybrid-rag.git
-$ cd langchain-ai-assistant-with-hybrid-rag
-```
+---
 
-Add your API keys (only the OpenAI API key is mandatory) and admin password:
+## Supported Tools and Services
 
-```
-$ nano .env
-```
+- **Langchain**: [langchain.com](https://www.langchain.com)
+- **Langsmith**: [smith.langchain.com](https://smith.langchain.com)
+- **Streamlit**: [streamlit.io](https://streamlit.io)
+- **ChromaDB**: [trychroma.com](https://www.trychroma.com)
+- **OpenAI (GPT)**: [platform.openai.com](https://platform.openai.com)
+- **Anthropic (Claude)**: [console.anthropic.com](https://console.anthropic.com)
+- **Google VertexAI (Gemini)**: [cloud.google.com/vertex-ai](https://cloud.google.com/vertex-ai)
+- **Ollama (LLaMA, Mistral, etc.)**: [ollama.com](https://ollama.com)
 
-```
-OPENAI_API_KEY = "sk-proj-xxx"       ==> Go to https://platform.openai.com/api-keys
-ANTHROPIC_API_KEY = "sk-ant-xxx"     ==> Go to https://console.anthropic.com/settings/keys
-LANGCHAIN_API_KEY = "ls__xxx"        ==> Go to https://smith.langchain.com (Langsmith)
-LANGCHAIN_TRACING_V2 = "true"        ==> Set to false if you will not use Langsmith traces
-ADMIN_PASSWORD = "xxx"               ==> You chose your password
-GOOGLE_APPLICATION_CREDENTIALS = "./serviceaccountxxx.json"  ==> Path to the Service Account (with VertexAI role) JSON file
-```
+---
 
-Configure the application:
+## Installation Guide
 
-```
-$ nano config/config.py
+### Prerequisites
+
+- OS: Linux
+- Python: 3.10
+- Git
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/dodeeric/LangChain-Powered-RAG-Agent.git
+cd LangChain-Powered-RAG-Agent
 ```
 
-Install required libraries:
+### Step 2: Create Environment Configuration
 
-```
-$ pip install -U -r requirements.txt
-```
+Edit the `.env` file to include your API keys (OpenAI key is required):
 
-Launch the AI Assistant:
-
-```
-$ bash app.sh start
+```bash
+nano .env
 ```
 
-Remark: if you get the "streamlit: command not found" error, then log off, then log in, to have the PATH updated.
+Example:
 
-Go to: http://IP:8080 (the IP is displayed on the screen in the "External URL".)
+```env
+OPENAI_API_KEY=sk-proj-xxx
+ANTHROPIC_API_KEY=sk-ant-xxx
+LANGCHAIN_API_KEY=ls__xxx
+LANGCHAIN_TRACING_V2=true
+ADMIN_PASSWORD=your_password
+GOOGLE_APPLICATION_CREDENTIALS=./serviceaccountxxx.json
+```
 
-Go first to the admin interface (introduce the admin password), and scrape some web pages and/or upload some PDF files, then embed them to the vector DB.
+> Note: The Google credential file should be a valid service account with access to VertexAI.
 
-Install a reverse proxy (Nginx for example) on the server if you want to listen on port 80 (http) or 443 (https). It has to forward the requests from port 80 to port 8080. 
+### Step 3: Configure the Application
 
-Check the Chroma vector DB: (OPTIONAL)
+```bash
+nano config/config.py
+```
+
+Adjust the settings as needed (e.g., model choice, retriever type, chunk size).
+
+### Step 4: Install Dependencies
+
+```bash
+pip install -U -r requirements.txt
+```
+
+### Step 5: Launch the Application
+
+```bash
+bash app.sh start
+```
+
+If you encounter a `streamlit: command not found` error, log out and back in again to refresh your environment path.
+
+---
+
+## Accessing the Application
+
+Once launched, access the assistant in your browser:
 
 ```
-$ cd chromadb
-$ sqlite3 chroma.sqlite3
+http://<your-server-ip>:8080
 ```
+
+### First Time Setup
+
+1. Go to the **Admin Interface**
+2. Enter your admin password
+3. Scrape websites or upload PDFs
+4. Embed the content into ChromaDB
+
+---
+
+## Optional: Use a Reverse Proxy
+
+For production deployments, consider using **Nginx** to forward traffic from port `80` or `443` to port `8080`.
+
+---
+
+## Inspecting the Chroma Vector Store
+
+```bash
+cd chromadb
+sqlite3 chroma.sqlite3
 ```
-sqlite> .tables                            ===> List of the tables
-sqlite> select * from collections;         ===> Name of the collection (bmae) & size of the vectors (3072)
-sqlite> select count(*) from embeddings;   ===> Number of records in the DB
-sqlite> select id, key, string_value from embedding_metadata LIMIT 10 OFFSET 0;       ===> Display JSON items and PDF pages
-sqlite> PRAGMA table_info(embedding_metadata);                                        ===> Structure of the table   
-sqlite> select * from embedding_metadata where string_value like '%Delper%';          ===> Display matching records
-sqlite> select count(*) from embedding_metadata where string_value like '%Delper%';   ===> Display number of matching records
+
+Useful SQL commands:
+
+```sql
+.tables
+SELECT * FROM collections;
+SELECT COUNT(*) FROM embeddings;
+SELECT id, key, string_value FROM embedding_metadata LIMIT 10;
+SELECT * FROM embedding_metadata WHERE string_value LIKE '%keyword%';
 ```
 
 ---
 
-Running Ollama / Llama 3 (or another LLM) locally:
+## Running Ollama Locally
 
-Install Ollama, then:
+### Step 1: Install and Start Ollama
+
+```bash
+ollama pull llama3
+ollama serve
+```
+
+### Step 2: Run an LLM
+
+```bash
+ollama run llama3
+```
+
+Example:
 
 ```
-$ ollama pull llama3
-$ ollama list
-$ ollama serve
-```
-
-In a new window:
-
-```
-$ ollama run llama3
->>> What's the capital of France?
->>> /bye
+> What's the capital of France?
+> /bye
 ```
 
 ---
 
-Run Chroma DB as a server:
+## Running ChromaDB as a Standalone Server
 
-a) Docker
+### Option A: Using Docker
 
-```
+```bash
 docker pull chromadb/chroma
 docker run -p 8081:8081 chromadb/chroma
 ```
 
-b) Python:
+### Option B: Using Python CLI
 
+```bash
+chroma run --path /path/to/db
 ```
-chroma run --path /db_path
-```
+
+---
+
+## Summary
+
+This assistant provides a powerful hybrid search capability with integrated memory, multi-model LLM support, and easy document ingestion—all accessible via a Streamlit interface. It’s modular and extensible for both personal and production use.
